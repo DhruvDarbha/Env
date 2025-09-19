@@ -237,10 +237,24 @@ Recipe name should be clean (e.g., "Apple Turnovers", "Green Mango Salad", not "
 
         // Parse the JSON response
         try {
-          final jsonResult = jsonDecode(analysisResult.trim());
+          // Clean up the response - remove markdown code blocks if present
+          String cleanedResult = analysisResult.trim();
+          if (cleanedResult.startsWith('```json')) {
+            cleanedResult = cleanedResult.substring(7);
+          }
+          if (cleanedResult.startsWith('```')) {
+            cleanedResult = cleanedResult.substring(3);
+          }
+          if (cleanedResult.endsWith('```')) {
+            cleanedResult = cleanedResult.substring(0, cleanedResult.length - 3);
+          }
+          cleanedResult = cleanedResult.trim();
+
+          final jsonResult = jsonDecode(cleanedResult);
           return jsonResult;
         } catch (e) {
           print('Error parsing recipe analysis JSON: $e');
+          print('Raw response: $analysisResult');
           return null;
         }
       }
