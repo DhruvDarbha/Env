@@ -7,7 +7,8 @@ import 'src/providers/app_state.dart';
 import 'src/providers/auth_provider.dart';
 import 'src/theme/app_theme.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const SavrApp());
 }
 

@@ -82,8 +82,9 @@ class _ConsumerDashboardState extends State<ConsumerDashboard>
   Widget _buildPhotoAnalysisTab() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
-      child: Column(
-        children: [
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
           // Camera Options at the top
           Column(
             children: [
@@ -155,14 +156,14 @@ class _ConsumerDashboardState extends State<ConsumerDashboard>
             ],
           ),
 
-          // Spacer to push prediction to bottom
-          const Spacer(),
+          // Add some space before prediction result
+          const SizedBox(height: 24),
 
-          // Prediction Result Display at the bottom (if available)
+          // Prediction Result Display (if available)
           if (_latestPrediction != null)
             Container(
               width: double.infinity,
-              margin: const EdgeInsets.only(top: 24, bottom: 120),
+              margin: const EdgeInsets.only(bottom: 20),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.green.shade50,
@@ -198,7 +199,8 @@ class _ConsumerDashboardState extends State<ConsumerDashboard>
                 ],
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
