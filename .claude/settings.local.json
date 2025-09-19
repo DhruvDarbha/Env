@@ -5,7 +5,8 @@
       "Bash(pod deintegrate:*)",
       "Bash(pod install:*)",
       "Read(//Users/farzadhasan/.pub-cache/**)",
-      "Bash(open /Users/farzadhasan/Desktop/FreshTrack/ios/Runner.xcworkspace)"
+      "Bash(open /Users/farzadhasan/Desktop/FreshTrack/ios/Runner.xcworkspace)",
+      "WebFetch(domain:inference-docs.cerebras.ai)"
     ],
     "deny": [],
     "ask": []

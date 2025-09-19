@@ -5,6 +5,9 @@ class Recipe {
   final String name;
   final String description;
   final int cookTimeMinutes;
+  final int prepTimeMinutes;
+  final int servings;
+  final String category;
   final DifficultyLevel difficulty;
   final List<String> ingredients;
   final List<String> instructions;
@@ -16,6 +19,9 @@ class Recipe {
     required this.name,
     required this.description,
     required this.cookTimeMinutes,
+    required this.prepTimeMinutes,
+    required this.servings,
+    required this.category,
     required this.difficulty,
     required this.ingredients,
     required this.instructions,
@@ -29,6 +35,9 @@ class Recipe {
       name: json['name'],
       description: json['description'],
       cookTimeMinutes: json['cookTimeMinutes'],
+      prepTimeMinutes: json['prepTimeMinutes'] ?? 0,
+      servings: json['servings'] ?? 1,
+      category: json['category'] ?? 'General',
       difficulty: DifficultyLevel.values.firstWhere(
         (e) => e.toString().split('.').last == json['difficulty'],
       ),
@@ -45,6 +54,9 @@ class Recipe {
       'name': name,
       'description': description,
       'cookTimeMinutes': cookTimeMinutes,
+      'prepTimeMinutes': prepTimeMinutes,
+      'servings': servings,
+      'category': category,
       'difficulty': difficulty.toString().split('.').last,
       'ingredients': ingredients,
       'instructions': instructions,
@@ -71,6 +83,9 @@ class Recipe {
       name: 'Fresh Garden Salad',
       description: 'A refreshing mix of seasonal vegetables',
       cookTimeMinutes: 15,
+      prepTimeMinutes: 10,
+      servings: 4,
+      category: 'Salads',
       difficulty: DifficultyLevel.easy,
       ingredients: ['Lettuce', 'Tomatoes', 'Cucumbers', 'Olive oil', 'Vinegar'],
       instructions: ['Wash vegetables', 'Chop into bite-sized pieces', 'Mix with dressing'],
@@ -81,6 +96,9 @@ class Recipe {
       name: 'Roasted Vegetable Medley',
       description: 'Perfectly roasted seasonal vegetables',
       cookTimeMinutes: 45,
+      prepTimeMinutes: 15,
+      servings: 6,
+      category: 'Main Dishes',
       difficulty: DifficultyLevel.medium,
       ingredients: ['Mixed vegetables', 'Herbs', 'Olive oil', 'Salt', 'Pepper'],
       instructions: ['Preheat oven', 'Cut vegetables', 'Season and roast'],
@@ -91,6 +109,9 @@ class Recipe {
       name: 'Green Smoothie Bowl',
       description: 'Nutritious smoothie bowl with fresh toppings',
       cookTimeMinutes: 10,
+      prepTimeMinutes: 5,
+      servings: 2,
+      category: 'Breakfast',
       difficulty: DifficultyLevel.easy,
       ingredients: ['Spinach', 'Banana', 'Berries', 'Yogurt', 'Granola'],
       instructions: ['Blend fruits and spinach', 'Pour into bowl', 'Add toppings'],

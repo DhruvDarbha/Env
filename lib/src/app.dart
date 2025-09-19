@@ -10,6 +10,7 @@ import 'screens/consumer/consumer_login.dart';
 import 'screens/supplier/supplier_dashboard.dart';
 import 'screens/supplier/supplier_login.dart';
 import 'screens/chat/chat_screen.dart';
+import 'screens/chat/askenv_chat_screen.dart';
 import 'screens/camera_screen.dart';
 import 'screens/photo_analysis_screen.dart';
 
@@ -84,6 +85,17 @@ class AppRouter {
             );
           }
           return PhotoAnalysisScreen(imagePath: imagePath);
+        },
+      ),
+      GoRoute(
+        path: '/askenv-chat',
+        name: 'askenv-chat',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return AskEnvChatScreen(
+            imageContext: extra?['imageContext'] as String?,
+            imagePath: extra?['imagePath'] as String?,
+          );
         },
       ),
     ],

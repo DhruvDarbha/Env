@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:http/http.dart' as http;
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 import '../models/user.dart';
 import '../models/produce_analysis.dart';
@@ -61,6 +64,136 @@ class ApiService {
 
     // Return mock food banks
     return FoodBank.mockFoodBanks;
+  }
+
+  // Location-based Food Bank Search
+  static Future<List<FoodBank>> searchFoodBanksByLocation({
+    required double latitude,
+    required double longitude,
+    double radiusMiles = 10.0,
+  }) async {
+    // Simulate API call delay
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    // Generate mock food banks based on location
+    return _generateNearbyFoodBanks(latitude, longitude, radiusMiles);
+  }
+
+  static Future<Position?> getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return null;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return null;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return null;
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  static Future<Position?> getLocationFromZipCode(String zipCode) async {
+    try {
+      // Convert zip code to coordinates
+      List<Location> locations = await locationFromAddress(zipCode);
+      if (locations.isNotEmpty) {
+        return Position(
+          latitude: locations.first.latitude,
+          longitude: locations.first.longitude,
+          timestamp: DateTime.now(),
+          accuracy: 0,
+          altitude: 0,
+          heading: 0,
+          speed: 0,
+          speedAccuracy: 0,
+          altitudeAccuracy: 0,
+          headingAccuracy: 0,
+        );
+      }
+    } catch (e) {
+      print('Error converting zipcode to location: $e');
+    }
+    return null;
+  }
+
+  static List<FoodBank> _generateNearbyFoodBanks(double lat, double lng, double radiusMiles) {
+    // Generate realistic food banks around the given location
+    final random = DateTime.now().millisecondsSinceEpoch;
+    final banks = <FoodBank>[];
+
+    // Create a variety of food banks at different distances and directions
+    final bankTemplates = [
+      {
+        'name': 'Community Food Bank',
+        'produce': 'Fresh vegetables, fruits',
+        'hours': 'Mon-Fri 9AM-5PM',
+        'phone': '(555) 123-4567',
+      },
+      {
+        'name': 'Harvest Hope Food Pantry',
+        'produce': 'Organic produce, herbs',
+        'hours': 'Tue-Sat 10AM-4PM',
+        'phone': '(555) 234-5678',
+      },
+      {
+        'name': 'Local Pantry Network',
+        'produce': 'Seasonal fruits, root vegetables',
+        'hours': 'Wed-Sun 8AM-6PM',
+        'phone': '(555) 345-6789',
+      },
+      {
+        'name': 'Green Valley Food Bank',
+        'produce': 'Farm-fresh produce, leafy greens',
+        'hours': 'Mon-Sat 7AM-7PM',
+        'phone': '(555) 456-7890',
+      },
+      {
+        'name': 'Unity Food Distribution',
+        'produce': 'Mixed vegetables, fruits, grains',
+        'hours': 'Thu-Sun 9AM-3PM',
+        'phone': '(555) 567-8901',
+      },
+    ];
+
+    for (int i = 0; i < bankTemplates.length; i++) {
+      final template = bankTemplates[i];
+
+      // Generate coordinates within radius
+      final angle = (i * 72.0) * (3.14159 / 180); // Distribute evenly in circle
+      final distance = (i + 1) * 0.5; // Varying distances
+
+      final offsetLat = lat + (distance / 69.0) * math.cos(angle);
+      final offsetLng = lng + (distance / (69.0 * math.cos(lat * 3.14159 / 180))) * math.sin(angle);
+
+      banks.add(FoodBank(
+        id: 'fb_${String.fromCharCode(65 + i)}${random + i}',
+        name: template['name']!,
+        address: '${100 + i * 50} ${['Main St', 'Oak Ave', 'Pine St', 'Elm Dr', 'Cedar Ln'][i]}, Local City, ST ${10000 + i * 111}',
+        latitude: offsetLat,
+        longitude: offsetLng,
+        distanceMiles: distance,
+        availableProduce: template['produce']!,
+        operatingHours: template['hours']!,
+        phoneNumber: template['phone']!,
+      ));
+    }
+
+    // Sort by distance
+    banks.sort((a, b) => a.distanceMiles.compareTo(b.distanceMiles));
+
+    return banks;
   }
 
   // Chat

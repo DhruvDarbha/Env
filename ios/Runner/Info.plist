@@ -30,6 +30,10 @@
 	<string>Savr needs camera access to analyze food quality and freshness</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Savr needs photo library access to analyze existing photos of food</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Savr needs location access to find nearby food banks and provide location-based services</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Savr needs location access to find nearby food banks and provide location-based services</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
