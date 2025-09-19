@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter:*)",
+      "Bash(pod deintegrate:*)",
+      "Bash(pod install:*)",
+      "Read(//Users/farzadhasan/.pub-cache/**)",
+      "Bash(open /Users/farzadhasan/Desktop/FreshTrack/ios/Runner.xcworkspace)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
