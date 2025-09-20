@@ -14,6 +14,8 @@ import 'gemini_vision_service.dart';
 import 'brand_tracking_service.dart';
 import 'supabase_service.dart';
 import 'data_insertion_service.dart';
+import 'food_bank_cache_service.dart';
+import '../utils/performance_monitor.dart';
 
 class ApiService {
   static const String baseUrl = ApiConfig.freshTrackBaseUrl;
@@ -120,37 +122,67 @@ class ApiService {
     return FoodBank.mockFoodBanks;
   }
 
-  // Location-based Food Bank Search using Google Places API
+  // Location-based Food Bank Search using Google Places API (OPTIMIZED)
   static Future<List<FoodBank>> searchFoodBanksByLocation({
     required double latitude,
     required double longitude,
     double radiusMiles = 10.0,
   }) async {
+    return PerformanceMonitor.timeAsync(
+      'FoodBankSearch',
+      () async {
+        // Check cache first
+        final cachedBanks = await FoodBankCacheService.getCachedFoodBanks(latitude, longitude);
+        if (cachedBanks != null) {
+          PerformanceMonitor.logMetric('Cache Hit', cachedBanks.length, ' results');
+          return cachedBanks;
+        }
+        
+        PerformanceMonitor.logMetric('Cache Miss', 'Loading from API');
+        return await _performApiSearch(latitude, longitude, radiusMiles);
+      },
+    );
+  }
+
+  static Future<List<FoodBank>> _performApiSearch(
+    double latitude,
+    double longitude,
+    double radiusMiles,
+  ) async {
+
     // Check if Google Places API is configured
     if (!ApiConfig.isGoogleApiKeyConfigured) {
-      print('Google Places API key not configured, using mock data');
-      return _generateNearbyFoodBanks(latitude, longitude, radiusMiles);
+      PerformanceMonitor.logMetric('API Status', 'Using Mock Data');
+      final mockBanks = _generateNearbyFoodBanks(latitude, longitude, radiusMiles);
+      await FoodBankCacheService.cacheFoodBanks(mockBanks, latitude, longitude);
+      return mockBanks;
     }
 
     try {
+      PerformanceMonitor.logMetric('API Status', 'Using Google Places API');
+      
       // Convert miles to meters for Google Places API
       final radiusMeters = (radiusMiles * 1609.34).round();
 
-      // Search for food banks, food pantries, and charities
-      final List<FoodBank> allFoodBanks = [];
-
-      // Use configured search queries
+      // Use the original comprehensive search queries for real food banks
       final searchQueries = ApiConfig.foodBankSearchQueries;
 
-      for (final query in searchQueries) {
-        final banks = await _searchPlacesByQuery(
+      PerformanceMonitor.logMetric('Search Queries', searchQueries.length, ' comprehensive search terms');
+
+      // OPTIMIZATION: Run queries in parallel instead of sequentially
+      final futures = searchQueries.map((query) => 
+        _searchPlacesByQuery(
           query: query,
           latitude: latitude,
           longitude: longitude,
           radius: radiusMeters,
-        );
-        allFoodBanks.addAll(banks);
-      }
+        )
+      );
+
+      final results = await Future.wait(futures);
+      final List<FoodBank> allFoodBanks = results.expand((banks) => banks).toList();
+
+      PerformanceMonitor.logMetric('Total Results', allFoodBanks.length, ' before deduplication');
 
       // Remove duplicates based on place_id and sort by distance
       final uniqueBanks = <String, FoodBank>{};
@@ -163,12 +195,22 @@ class ApiService {
       final result = uniqueBanks.values.toList();
       result.sort((a, b) => a.distanceMiles.compareTo(b.distanceMiles));
 
-      return result.take(ApiConfig.maxFoodBankResults).toList();
+      final finalResult = result.take(ApiConfig.maxFoodBankResults).toList();
+      
+      PerformanceMonitor.logMetric('Final Results', finalResult.length, ' unique food banks');
+      
+      // Cache the results
+      await FoodBankCacheService.cacheFoodBanks(finalResult, latitude, longitude);
+      
+      return finalResult;
 
     } catch (e) {
+      PerformanceMonitor.logMetric('API Error', e.toString());
       print('Error searching food banks with Google Places API: $e');
       // Fallback to mock data if API fails
-      return _generateNearbyFoodBanks(latitude, longitude, radiusMiles);
+      final fallbackBanks = _generateNearbyFoodBanks(latitude, longitude, radiusMiles);
+      await FoodBankCacheService.cacheFoodBanks(fallbackBanks, latitude, longitude);
+      return fallbackBanks;
     }
   }
 
@@ -200,7 +242,11 @@ class ApiService {
 
     final foodBanks = <FoodBank>[];
 
-    for (final place in results) {
+    // Process all results but limit Place Details API calls for performance
+    final limitedResults = results.take(6).toList(); // Limit to 6 results per query for details
+    
+    for (int i = 0; i < results.length; i++) {
+      final place = results[i];
       try {
         final placeId = place['place_id'] as String;
         final name = place['name'] as String;
@@ -214,8 +260,11 @@ class ApiService {
         // Calculate distance
         final distance = _calculateDistance(latitude, longitude, placeLat, placeLng);
 
-        // Get additional details from Place Details API
-        final details = await _getPlaceDetails(placeId);
+        // Get detailed info for first 6 results, basic info for others
+        Map<String, String?> details = {};
+        if (i < 6) {
+          details = await _getPlaceDetails(placeId);
+        }
 
         final foodBank = FoodBank(
           id: placeId,
@@ -238,6 +287,29 @@ class ApiService {
     }
 
     return foodBanks;
+  }
+
+  // Load place details on-demand (when user taps a marker)
+  static Future<FoodBank> loadFoodBankDetails(FoodBank foodBank) async {
+    try {
+      final details = await _getPlaceDetails(foodBank.id);
+      
+      return FoodBank(
+        id: foodBank.id,
+        name: foodBank.name,
+        address: foodBank.address,
+        latitude: foodBank.latitude,
+        longitude: foodBank.longitude,
+        distanceMiles: foodBank.distanceMiles,
+        availableProduce: foodBank.availableProduce,
+        operatingHours: details['hours'] ?? foodBank.operatingHours,
+        phoneNumber: details['phone'] ?? foodBank.phoneNumber,
+        website: details['website'] ?? foodBank.website,
+      );
+    } catch (e) {
+      print('Error loading food bank details: $e');
+      return foodBank; // Return original if details fail
+    }
   }
 
   // Get detailed information about a place

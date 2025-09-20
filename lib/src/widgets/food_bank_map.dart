@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import '../models/food_bank.dart';
 import '../services/api_service.dart';
+import 'progressive_loading_widget.dart';
 
 class FoodBankMap extends StatefulWidget {
   final String? zipCode;
@@ -145,126 +146,9 @@ class _FoodBankMapState extends State<FoodBankMap> {
         initialChildSize: 0.4,
         minChildSize: 0.2,
         maxChildSize: 0.8,
-        builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: SingleChildScrollView(
-            controller: scrollController,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Handle bar
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Food bank name
-                  Text(
-                    foodBank.name,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Distance
-                  Row(
-                    children: [
-                      Icon(Icons.location_on, color: Colors.green[600], size: 20),
-                      const SizedBox(width: 4),
-                      Text(
-                        foodBank.distanceString,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.green[600],
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Address
-                  _buildDetailSection(
-                    icon: Icons.place,
-                    title: 'Address',
-                    content: foodBank.address,
-                  ),
-
-                  // Operating hours
-                  _buildDetailSection(
-                    icon: Icons.access_time,
-                    title: 'Operating Hours',
-                    content: foodBank.operatingHours,
-                  ),
-
-                  // Available produce
-                  _buildDetailSection(
-                    icon: Icons.eco,
-                    title: 'Available Produce',
-                    content: foodBank.availableProduce,
-                  ),
-
-                  // Phone number
-                  if (foodBank.phoneNumber != null)
-                    _buildDetailSection(
-                      icon: Icons.phone,
-                      title: 'Phone',
-                      content: foodBank.phoneNumber!,
-                      isClickable: true,
-                    ),
-
-                  const SizedBox(height: 20),
-
-                  // Action buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            // TODO: Open directions
-                          },
-                          icon: const Icon(Icons.directions),
-                          label: const Text('Directions'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green[600],
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            // TODO: Call phone number
-                          },
-                          icon: const Icon(Icons.phone),
-                          label: const Text('Call'),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
+        builder: (context, scrollController) => _FoodBankDetailsSheet(
+          foodBank: foodBank,
+          scrollController: scrollController,
         ),
       ),
     );
@@ -314,101 +198,62 @@ class _FoodBankMapState extends State<FoodBankMap> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Container(
-        height: 300,
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
+    return ProgressiveLoadingWidget(
+      isLoading: _isLoading,
+      error: _error,
+      onRetry: () {
+        setState(() {
+          _isLoading = true;
+          _error = null;
+        });
+        _initializeMap();
+      },
+      child: _currentLocation == null
+          ? _buildLocationRequiredWidget()
+          : _buildMapWidget(),
+    );
+  }
 
-    if (_error != null) {
-      return Container(
-        height: 300,
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Error',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red[700],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  _error!,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.red[600],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (_currentLocation == null) {
-      return Container(
-        height: 300,
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.location_off,
-                size: 64,
+  Widget _buildLocationRequiredWidget() {
+    return Container(
+      height: 300,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.location_off,
+              size: 64,
+              color: Colors.grey,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Location Required',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
                 color: Colors.grey,
               ),
-              SizedBox(height: 16),
-              Text(
-                'Location Required',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey,
-                ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Please enable location services',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
               ),
-              SizedBox(height: 8),
-              Text(
-                'Please enable location services',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
-    }
+      ),
+    );
+  }
 
+  Widget _buildMapWidget() {
     return Container(
       height: 300,
       decoration: BoxDecoration(
@@ -438,5 +283,230 @@ class _FoodBankMapState extends State<FoodBankMap> {
   void dispose() {
     _mapController?.dispose();
     super.dispose();
+  }
+}
+
+// OPTIMIZATION: Separate widget for food bank details with on-demand loading
+class _FoodBankDetailsSheet extends StatefulWidget {
+  final FoodBank foodBank;
+  final ScrollController scrollController;
+
+  const _FoodBankDetailsSheet({
+    required this.foodBank,
+    required this.scrollController,
+  });
+
+  @override
+  State<_FoodBankDetailsSheet> createState() => _FoodBankDetailsSheetState();
+}
+
+class _FoodBankDetailsSheetState extends State<_FoodBankDetailsSheet> {
+  FoodBank? _detailedFoodBank;
+  bool _isLoadingDetails = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDetailsIfNeeded();
+  }
+
+  Future<void> _loadDetailsIfNeeded() async {
+    // Only load details if we don't have phone/website info
+    if (widget.foodBank.phoneNumber != null && widget.foodBank.website != null) {
+      _detailedFoodBank = widget.foodBank;
+      return;
+    }
+
+    setState(() {
+      _isLoadingDetails = true;
+    });
+
+    try {
+      final detailedBank = await ApiService.loadFoodBankDetails(widget.foodBank);
+      setState(() {
+        _detailedFoodBank = detailedBank;
+        _isLoadingDetails = false;
+      });
+    } catch (e) {
+      setState(() {
+        _detailedFoodBank = widget.foodBank;
+        _isLoadingDetails = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final foodBank = _detailedFoodBank ?? widget.foodBank;
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: SingleChildScrollView(
+        controller: widget.scrollController,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle bar
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Food bank name
+              Text(
+                foodBank.name,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Distance
+              Row(
+                children: [
+                  Icon(Icons.location_on, color: Colors.green[600], size: 20),
+                  const SizedBox(width: 4),
+                  Text(
+                    foodBank.distanceString,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.green[600],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Address
+              _buildDetailSection(
+                icon: Icons.place,
+                title: 'Address',
+                content: foodBank.address,
+              ),
+
+              // Operating hours
+              _buildDetailSection(
+                icon: Icons.access_time,
+                title: 'Operating Hours',
+                content: _isLoadingDetails ? 'Loading...' : foodBank.operatingHours,
+              ),
+
+              // Available produce
+              _buildDetailSection(
+                icon: Icons.eco,
+                title: 'Available Produce',
+                content: foodBank.availableProduce,
+              ),
+
+              // Phone number
+              if (foodBank.phoneNumber != null)
+                _buildDetailSection(
+                  icon: Icons.phone,
+                  title: 'Phone',
+                  content: foodBank.phoneNumber!,
+                  isClickable: true,
+                )
+              else if (_isLoadingDetails)
+                _buildDetailSection(
+                  icon: Icons.phone,
+                  title: 'Phone',
+                  content: 'Loading...',
+                ),
+
+              const SizedBox(height: 20),
+
+              // Action buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        // TODO: Open directions
+                      },
+                      icon: const Icon(Icons.directions),
+                      label: const Text('Directions'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[600],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: foodBank.phoneNumber != null ? () {
+                        // TODO: Call phone number
+                      } : null,
+                      icon: const Icon(Icons.phone),
+                      label: const Text('Call'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailSection({
+    required IconData icon,
+    required String title,
+    required String content,
+    bool isClickable = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.grey[600], size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  content,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isClickable ? Colors.blue[600] : Colors.black87,
+                    decoration: isClickable ? TextDecoration.underline : null,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

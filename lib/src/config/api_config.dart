@@ -22,7 +22,7 @@ class ApiConfig {
 
   // API Configuration
   static const Duration apiTimeout = Duration(seconds: 30);
-  static const int maxFoodBankResults = 10;
+  static const int maxFoodBankResults = 15;
   static const double defaultSearchRadiusMiles = 10.0;
 
   // Search queries for food assistance locations
