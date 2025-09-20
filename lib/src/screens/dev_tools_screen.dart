@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
+import '../providers/auth_provider.dart';
 import '../services/api_service.dart';
 import '../services/supabase_service.dart';
 
@@ -136,6 +139,15 @@ Ready for real Gemini integration!''';
         title: const Text('Development Tools'),
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.read<AuthProvider>().logout();
+              context.go('/');
+            },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),

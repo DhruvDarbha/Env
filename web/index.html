@@ -29,11 +29,48 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>FreshTrack</title>
+  <title>.env</title>
   <link rel="manifest" href="manifest.json">
 
   <!-- Google Maps API -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBvliiQSooQGNzWZaFjl87lsk9J-X5kPdw&libraries=places"></script>
+
+  <style>
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('assets/assets/images/web_app_splash.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 1s ease-in-out infinite;
+      margin-top: 60vh;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+  </style>
 
   <script>
     // The value below is injected by flutter build, do not touch.
@@ -43,6 +80,11 @@
   <script src="flutter.js" defer></script>
 </head>
 <body>
+  <!-- Loading splash screen -->
+  <div id="loading">
+    <div id="loading-spinner"></div>
+  </div>
+
   <script>
     window.addEventListener('load', function(ev) {
       // Download main.dart.js
@@ -52,7 +94,12 @@
         },
         onEntrypointLoaded: function(engineInitializer) {
           engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
+            appRunner.runApp().then(function() {
+              // Hide loading screen when Flutter app is ready
+              setTimeout(function() {
+                document.getElementById('loading').style.display = 'none';
+              }, 500);
+            });
           });
         }
       });

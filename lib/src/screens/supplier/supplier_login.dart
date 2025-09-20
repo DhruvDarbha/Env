@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../widgets/background_wrapper_light.dart';
 
 class SupplierLogin extends StatefulWidget {
   const SupplierLogin({super.key});
@@ -13,7 +14,7 @@ class SupplierLogin extends StatefulWidget {
 
 class _SupplierLoginState extends State<SupplierLogin> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'supplier@freshtrack.com');
+  final _emailController = TextEditingController(text: 'sunkist@env.com');
   final _passwordController = TextEditingController(text: 'demo123');
 
   @override
@@ -39,55 +40,77 @@ class _SupplierLoginState extends State<SupplierLogin> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Supplier Login'),
-        leading: IconButton(
-          onPressed: () => context.go('/'),
-          icon: const Icon(Icons.arrow_back),
+    return BackgroundWrapperLight(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () => context.go('/'),
+            icon: const Icon(Icons.arrow_back),
+          ),
         ),
-      ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 280, 24, 24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.eco,
-                    size: 64,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  const SizedBox(height: 32),
                   Text(
                     'Supplier Portal',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 32),
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
+                  Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
+                    child: TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
                     validator: (value) {
                       if (value?.isEmpty ?? true) {
                         return 'Email is required';
                       }
                       return null;
                     },
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(),
+                  Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
+                    child: TextFormField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
                     obscureText: true,
                     validator: (value) {
                       if (value?.isEmpty ?? true) {
@@ -95,6 +118,7 @@ class _SupplierLoginState extends State<SupplierLogin> {
                       }
                       return null;
                     },
+                    ),
                   ),
                   const SizedBox(height: 24),
                   Consumer<AuthProvider>(
@@ -119,13 +143,27 @@ class _SupplierLoginState extends State<SupplierLogin> {
                   ),
                   SizedBox(
                     width: double.infinity,
+                    height: 50,
                     child: Consumer<AuthProvider>(
                       builder: (context, authProvider, child) {
-                        return ElevatedButton(
-                          onPressed: authProvider.isLoading ? null : _handleLogin,
-                          child: authProvider.isLoading
-                              ? const CircularProgressIndicator()
-                              : const Text('Sign In'),
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withOpacity(0.85),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: TextButton(
+                            onPressed: authProvider.isLoading ? null : _handleLogin,
+                            child: authProvider.isLoading
+                                ? const CircularProgressIndicator(color: Colors.white)
+                                : Text(
+                                    'Sign In',
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          ),
                         );
                       },
                     ),
@@ -140,12 +178,13 @@ class _SupplierLoginState extends State<SupplierLogin> {
                     child: const Column(
                       children: [
                         Text('Demo Credentials:'),
-                        Text('Email: supplier@freshtrack.com'),
+                        Text('Email: sunkist@env.com'),
                         Text('Password: demo123'),
                       ],
                     ),
                   ),
                 ],
+                ),
               ),
             ),
           ),

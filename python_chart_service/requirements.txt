@@ -1,0 +1,6 @@
+matplotlib
+pandas
+numpy
+supabase
+flask
+flask-cors

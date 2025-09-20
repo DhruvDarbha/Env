@@ -27,7 +27,7 @@ class ApiService {
     await Future.delayed(const Duration(seconds: 1));
 
     // Mock authentication logic
-    return email == 'supplier@freshtrack.com' && password == 'demo123';
+    return email == 'sunkist@env.com' && password == 'demo123';
   }
 
   static Future<bool> loginConsumer(String email, String password) async {
@@ -35,7 +35,7 @@ class ApiService {
     await Future.delayed(const Duration(seconds: 1));
 
     // Mock authentication logic
-    return email == 'james@savr.com' && password == 'demo123';
+    return email == 'james@env.com' && password == 'demo123';
   }
 
   // Produce Analysis with Brand Detection

@@ -9,7 +9,8 @@
       "WebFetch(domain:inference-docs.cerebras.ai)",
       "Bash(open:*)",
       "Bash(pkill:*)",
-      "Bash(printf \"r\\n\")"
+      "Bash(printf \"r\\n\")",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

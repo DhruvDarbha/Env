@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class BackgroundWrapperLight extends StatelessWidget {
   final Widget child;
@@ -10,19 +12,33 @@ class BackgroundWrapperLight extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/login_screen.png'),
-          fit: BoxFit.cover,
+    // Determine which background image to use based on platform
+    String backgroundImage;
+    if (kIsWeb) {
+      // Check current route to use appropriate web background
+      final location = GoRouterState.of(context).uri.toString();
+      if (location == '/supplier-login' || location == '/consumer-login') {
+        backgroundImage = 'assets/images/web_app_login_screen.png';
+      } else {
+        backgroundImage = 'assets/images/web_app_background.png';
+      }
+    } else {
+      backgroundImage = 'assets/images/login_screen.png';
+    }
+
+    return Stack(
+      children: [
+        // Background image layer
+        Positioned.fill(
+          child: Image.asset(
+            backgroundImage,
+            fit: BoxFit.cover,
+            alignment: Alignment.center,
+          ),
         ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.3),
-        ),
-        child: child,
-      ),
+        // Content layer
+        child,
+      ],
     );
   }
 }

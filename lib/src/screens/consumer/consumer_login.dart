@@ -14,7 +14,7 @@ class ConsumerLogin extends StatefulWidget {
 
 class _ConsumerLoginState extends State<ConsumerLogin> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'james@savr.com');
+  final _emailController = TextEditingController(text: 'james@env.com');
   final _passwordController = TextEditingController(text: 'demo123');
 
   @override
@@ -40,16 +40,18 @@ class _ConsumerLoginState extends State<ConsumerLogin> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Consumer Login'),
-        leading: IconButton(
-          onPressed: () => context.go('/'),
-          icon: const Icon(Icons.arrow_back),
+    return BackgroundWrapperLight(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () => context.go('/'),
+            icon: const Icon(Icons.arrow_back),
+          ),
         ),
-      ),
-      body: BackgroundWrapperLight(
-        child: Center(
+        body: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
             child: Padding(
@@ -176,7 +178,7 @@ class _ConsumerLoginState extends State<ConsumerLogin> {
                     child: const Column(
                       children: [
                         Text('Demo Credentials:'),
-                        Text('Email: james@savr.com'),
+                        Text('Email: james@env.com'),
                         Text('Password: demo123'),
                       ],
                     ),

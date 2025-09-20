@@ -255,6 +255,34 @@ class SupabaseService {
       return [];
     }
   }
+
+  /// Get all data for a specific supplier table
+  static Future<List<Map<String, dynamic>>> getSupplierData(String tableName) async {
+    print('🔧 DEBUG: getSupplierData called with tableName: $tableName');
+    print('🔧 DEBUG: isReady = $isReady');
+    print('🔧 DEBUG: _client = $_client');
+
+    if (!isReady) {
+      print('🔧 DEBUG: Supabase not ready, returning empty list');
+      return [];
+    }
+    try {
+      print('🔧 DEBUG: Attempting query to $tableName...');
+      final response = await _client!
+          .from(tableName)
+          .select()
+          .order('analyzed_at', ascending: true);
+      print('🔧 DEBUG: Query successful, response type: ${response.runtimeType}');
+      print('🔧 DEBUG: Response: $response');
+      final result = List<Map<String, dynamic>>.from(response);
+      print('🔧 DEBUG: Converted to list, length: ${result.length}');
+      return result;
+    } catch (e) {
+      print('🔧 ERROR: Error getting supplier data from $tableName: $e');
+      print('🔧 ERROR: Error type: ${e.runtimeType}');
+      return [];
+    }
+  }
 }
 
 /// Data class for local entries to sync

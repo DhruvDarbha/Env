@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class BackgroundWrapperSplash extends StatelessWidget {
@@ -10,14 +11,27 @@ class BackgroundWrapperSplash extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/splash_screen.png'),
-          fit: BoxFit.cover,
+    // Determine which splash image to use based on platform
+    String splashImage;
+    if (kIsWeb) {
+      splashImage = 'assets/images/web_app_splash.png';
+    } else {
+      splashImage = 'assets/images/splash_screen.png';
+    }
+
+    return Stack(
+      children: [
+        // Background image layer
+        Positioned.fill(
+          child: Image.asset(
+            splashImage,
+            fit: BoxFit.cover,
+            alignment: Alignment.center,
+          ),
         ),
-      ),
-      child: child,
+        // Content layer
+        child,
+      ],
     );
   }
 }

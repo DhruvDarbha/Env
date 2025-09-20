@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../widgets/background_wrapper.dart';
@@ -7,6 +8,7 @@ import '../../widgets/food_bank_map.dart';
 import '../../widgets/zipcode_search.dart';
 import '../../models/food_bank.dart';
 import '../../models/recipe.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../services/recipe_storage_service.dart';
 
@@ -57,6 +59,15 @@ class _ConsumerDashboardState extends State<ConsumerDashboard>
           onPressed: () => context.go('/'),
           icon: const Icon(Icons.arrow_back),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.read<AuthProvider>().logout();
+              context.go('/');
+            },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [

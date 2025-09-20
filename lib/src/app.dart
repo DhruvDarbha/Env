@@ -24,6 +24,24 @@ class AppRouter {
         path: '/',
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
+        redirect: (context, state) {
+          final authProvider = context.read<AuthProvider>();
+          if (authProvider.isInitialized) {
+            // If user has existing auth, go to their dashboard
+            if (authProvider.hasExistingAuth) {
+              if (authProvider.isConsumerAuthenticated) {
+                return '/consumer';
+              } else if (authProvider.isSupplierAuthenticated) {
+                return '/supplier';
+              }
+            }
+            // If user has used app before but not logged in, skip splash
+            if (authProvider.hasEverUsedApp) {
+              return '/home';
+            }
+          }
+          return null;
+        },
       ),
       GoRoute(
         path: '/home',
