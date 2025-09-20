@@ -8,6 +8,17 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () => context.go('/dev-tools'),
+            icon: const Icon(Icons.developer_mode),
+            tooltip: 'Development Tools',
+          ),
+        ],
+      ),
       body: BackgroundWrapperSplash(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 48.0),

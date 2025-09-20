@@ -12,6 +12,8 @@ import '../models/message.dart';
 import '../config/api_config.dart';
 import 'gemini_vision_service.dart';
 import 'brand_tracking_service.dart';
+import 'supabase_service.dart';
+import 'data_insertion_service.dart';
 
 class ApiService {
   static const String baseUrl = ApiConfig.freshTrackBaseUrl;
@@ -71,12 +73,16 @@ class ApiService {
 
       // Save brand tracking data if brand was detected
       if (detectedBrand != null) {
+        // Save locally only - Supabase sync is now handled manually with real scores
         await BrandTrackingService.saveBrandFromAnalysis(
           brandName: detectedBrand,
           fruitType: baseAnalysis.fruitType,
           timestamp: DateTime.now(),
           location: location,
         );
+
+        // NOTE: Supabase sync disabled here - now handled in PhotoAnalysisScreen
+        // with real GCP ripeness scores instead of mock data
       }
 
       return enhancedAnalysis;
@@ -296,6 +302,58 @@ class ApiService {
     return degrees * (math.pi / 180);
   }
 
+  /// Public method to sync brand data to Supabase
+  static Future<void> syncBrandToSupabase({
+    required String brandName,
+    required double ripenessScore,
+    required DateTime analyzedAt,
+    Position? location,
+    String? fruitType,
+  }) async {
+    return _syncBrandToSupabase(
+      brandName: brandName,
+      ripenessScore: ripenessScore,
+      analyzedAt: analyzedAt,
+      location: location,
+      fruitType: fruitType,
+    );
+  }
+
+  /// Background sync of brand data to Supabase
+  static Future<void> _syncBrandToSupabase({
+    required String brandName,
+    required double ripenessScore,
+    required DateTime analyzedAt,
+    Position? location,
+    String? fruitType,
+  }) async {
+    // Run in background, don't block main thread
+    Future.microtask(() async {
+      try {
+        if (!SupabaseService.isReady) {
+          print('Supabase not configured, skipping sync');
+          return;
+        }
+
+        final success = await SupabaseService.insertBrandData(
+          brandName: brandName,
+          ripenessScore: ripenessScore,
+          analyzedAt: analyzedAt,
+          location: location,
+          fruitType: fruitType,
+        );
+
+        if (success) {
+          print('Successfully synced brand data to Supabase: $brandName');
+        } else {
+          print('Failed to sync brand data to Supabase: $brandName');
+        }
+      } catch (e) {
+        print('Error syncing brand data to Supabase: $e');
+      }
+    });
+  }
+
   static Future<Position?> getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -442,6 +500,23 @@ class ApiService {
       return "Proper storage is key to maintaining produce quality! Different fruits and vegetables have specific storage requirements. Would you like storage tips for a particular type of produce?";
     } else {
       return "I'm here to help with all your produce-related questions! I can assist with quality analysis, recipe suggestions, storage tips, and connecting you with local food resources. What would you like to know?";
+    }
+  }
+
+  // Development Helper: Insert Halos dummy data
+  static Future<bool> insertHalosDummyData() async {
+    try {
+      print('Starting Halos dummy data insertion...');
+      final success = await DataInsertionService.insertHalosDummyData();
+      if (success) {
+        print('Halos dummy data inserted successfully!');
+      } else {
+        print('Failed to insert Halos dummy data');
+      }
+      return success;
+    } catch (e) {
+      print('Error inserting Halos dummy data: $e');
+      return false;
     }
   }
 

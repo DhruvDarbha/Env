@@ -11,6 +11,11 @@ class ApiConfig {
   // Enable: Generative Language API
   static const String geminiApiKey = 'AIzaSyDhirAR-Szj9bH6WyNm0a8LP1yKzZj7DfA';
 
+  // Supabase Configuration
+  // Get these from your Supabase project settings
+  static const String supabaseUrl = 'https://tjpilnhmtwjvhmbaxtcx.supabase.co';
+  static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqcGlsbmhtdHdqdmhtYmF4dGN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzODQwNDcsImV4cCI6MjA3Mzk2MDA0N30.QXd4er8enrzcDXZPJSts3qfm63IW-ZZsQ8UywbsWuog';
+
   // Base URLs
   static const String googlePlacesBaseUrl = 'https://maps.googleapis.com/maps/api/place';
   static const String freshTrackBaseUrl = 'https://api.freshtrack.com';
@@ -42,5 +47,12 @@ class ApiConfig {
   static bool get isGeminiApiKeyConfigured {
     return geminiApiKey != 'YOUR_GEMINI_API_KEY' &&
            geminiApiKey.isNotEmpty;
+  }
+
+  static bool get isSupabaseConfigured {
+    return supabaseUrl != 'YOUR_SUPABASE_URL' &&
+           supabaseAnonKey != 'YOUR_SUPABASE_ANON_KEY' &&
+           supabaseUrl.isNotEmpty &&
+           supabaseAnonKey.isNotEmpty;
   }
 }

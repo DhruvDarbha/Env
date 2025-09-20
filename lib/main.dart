@@ -6,9 +6,14 @@ import 'src/app.dart';
 import 'src/providers/app_state.dart';
 import 'src/providers/auth_provider.dart';
 import 'src/theme/app_theme.dart';
+import 'src/services/supabase_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Supabase
+  await SupabaseService.initialize();
+
   runApp(const SavrApp());
 }
 

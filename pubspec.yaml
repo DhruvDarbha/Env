@@ -29,6 +29,9 @@ dependencies:
   # Google Generative AI (Gemini)
   google_generative_ai: ^0.4.3
 
+  # Supabase for backend database
+  supabase_flutter: ^2.3.4
+
   # Firebase (removed - using direct GCP calls)
   # firebase_core: ^2.4.1
   # firebase_storage: ^11.2.6

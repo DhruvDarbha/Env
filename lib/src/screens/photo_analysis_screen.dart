@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../services/prediction_service.dart';
+import '../services/api_service.dart';
+import '../services/gemini_vision_service.dart';
+import '../models/produce_analysis.dart';
 
 class PhotoAnalysisScreen extends StatefulWidget {
   final String imagePath;
@@ -17,23 +20,46 @@ class PhotoAnalysisScreen extends StatefulWidget {
 
 class _PhotoAnalysisScreenState extends State<PhotoAnalysisScreen> {
   bool _isAnalyzing = false;
+  String? _detectedBrand;
+  String? _ripenessScore;
 
   Future<void> _getPrediction() async {
     setState(() {
       _isAnalyzing = true;
+      _detectedBrand = null;
+      _ripenessScore = null;
     });
 
     try {
-      // Call the actual GCP prediction API
-      final String prediction = await PredictionService.predictRipeness(widget.imagePath);
-      
+      // Run GCP ripeness prediction and Gemini brand detection
+      final String ripenessResult = await PredictionService.predictRipeness(widget.imagePath);
+      final String? detectedBrand = await GeminiVisionService.detectFruitBrand(widget.imagePath);
+
+      // If brand was detected, sync to Supabase with REAL ripeness score
+      if (detectedBrand != null) {
+        final realRipenessScore = double.tryParse(ripenessResult) ?? 0.0;
+        await ApiService.syncBrandToSupabase(
+          brandName: detectedBrand,
+          ripenessScore: realRipenessScore,
+          analyzedAt: DateTime.now(),
+          location: await ApiService.getCurrentLocation(),
+          fruitType: 'Orange', // You can make this dynamic based on detection
+        );
+      }
+
       setState(() {
+        _ripenessScore = ripenessResult;
+        _detectedBrand = detectedBrand;
         _isAnalyzing = false;
       });
 
+      print('🎯 Analysis Results:');
+      print('   Ripeness Score: $ripenessResult');
+      print('   Detected Brand: ${detectedBrand ?? "None"}');
+
       // Return to dashboard with prediction result
       if (mounted) {
-        context.pop(prediction);
+        context.pop(ripenessResult);
       }
     } catch (e) {
       setState(() {
@@ -169,7 +195,59 @@ class _PhotoAnalysisScreenState extends State<PhotoAnalysisScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
-                  
+
+                  // Results Display (if available)
+                  if (_ripenessScore != null || _detectedBrand != null) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Analysis Results',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          if (_ripenessScore != null)
+                            Row(
+                              children: [
+                                const Icon(Icons.assessment, size: 16, color: Colors.green),
+                                const SizedBox(width: 8),
+                                Text('Ripeness Score: $_ripenessScore'),
+                              ],
+                            ),
+                          if (_detectedBrand != null)
+                            Row(
+                              children: [
+                                const Icon(Icons.label, size: 16, color: Colors.green),
+                                const SizedBox(width: 8),
+                                Text('Brand Detected: $_detectedBrand'),
+                              ],
+                            ),
+                          if (_detectedBrand == null && _ripenessScore != null)
+                            const Row(
+                              children: [
+                                Icon(Icons.label_off, size: 16, color: Colors.grey),
+                                SizedBox(width: 8),
+                                Text('No brand detected', style: TextStyle(color: Colors.grey)),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
                   // Get Prediction Button
                   SizedBox(
                     width: double.infinity,
@@ -198,7 +276,7 @@ class _PhotoAnalysisScreenState extends State<PhotoAnalysisScreen> {
                                 ),
                                 SizedBox(width: 12),
                                 Text(
-                                  'Analyzing Ripeness...',
+                                  'Analyzing Ripeness & Brand...',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -212,7 +290,7 @@ class _PhotoAnalysisScreenState extends State<PhotoAnalysisScreen> {
                                 Icon(Icons.auto_awesome, size: 20),
                                 SizedBox(width: 8),
                                 Text(
-                                  'Predict Ripeness',
+                                  'Analyze Ripeness & Brand',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,

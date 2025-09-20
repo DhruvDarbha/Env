@@ -88,12 +88,12 @@ class ProduceAnalysis {
     };
   }
 
-  // Mock data for demo
+  // Mock data for demo (updated to 0-15 scale)
   static ProduceAnalysis get mockAppleAnalysis => ProduceAnalysis(
     id: 'apple_001',
     imagePath: 'assets/images/fresh-apple.jpg',
     fruitType: 'Apple',
-    ripeness: 85.0,
+    ripeness: 5.5, // Just ripe (3-7 range)
     qualityScore: 4.2,
     shelfLife: '5-7 days',
     recommendations: [
@@ -104,4 +104,20 @@ class ProduceAnalysis {
     ],
     analyzedAt: DateTime.now(),
   );
+
+  // Helper method to get ripeness category
+  String get ripenessCategory {
+    if (ripeness >= 0 && ripeness < 3) return 'Very Ripe';
+    if (ripeness >= 3 && ripeness < 7) return 'Just Ripe';
+    if (ripeness >= 7 && ripeness <= 15) return 'Unripe';
+    return 'Unknown';
+  }
+
+  // Helper method to get ripeness color
+  String get ripenessColor {
+    if (ripeness >= 0 && ripeness < 3) return 'green';
+    if (ripeness >= 3 && ripeness < 7) return 'yellow';
+    if (ripeness >= 7 && ripeness <= 15) return 'red';
+    return 'grey';
+  }
 }

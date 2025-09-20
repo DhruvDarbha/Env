@@ -13,6 +13,7 @@ import 'screens/chat/chat_screen.dart';
 import 'screens/chat/askenv_chat_screen.dart';
 import 'screens/camera_screen.dart';
 import 'screens/photo_analysis_screen.dart';
+import 'screens/dev_tools_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -97,6 +98,11 @@ class AppRouter {
             imagePath: extra?['imagePath'] as String?,
           );
         },
+      ),
+      GoRoute(
+        path: '/dev-tools',
+        name: 'dev-tools',
+        builder: (context, state) => const DevToolsScreen(),
       ),
     ],
   );

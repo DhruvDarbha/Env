@@ -75,7 +75,7 @@ class GeminiVisionService {
 Analyze this fruit/produce image and identify ONLY the brand name if visible.
 
 Look carefully for:
-- Small stickers on the fruit with brand names (Dole, Chiquita, Del Monte, Driscoll's, etc.)
+- Small stickers on the fruit with brand names (Dole, Chiquita, Del Monte, Driscoll's, Halos, etc.)
 - Company logos on packaging or labels
 - Any text indicating the supplier or brand name
 - PLU stickers with brand identifiers
@@ -91,6 +91,7 @@ Examples of good responses:
 - "Chiquita"
 - "Del Monte"
 - "Driscoll's"
+- "Halos"
 - "none"
 
 Response:''';
@@ -134,7 +135,8 @@ Response:''';
       'pure pacific',
       'paramount',
       'naturipe',
-      'wish farms'
+      'wish farms',
+      'halos'
     ];
 
     // Check if response contains a known brand
@@ -201,6 +203,8 @@ Response:''';
         return 'NatureSweet';
       case 'wish farms':
         return 'Wish Farms';
+      case 'halos':
+        return 'Halos';
       default:
         // Capitalize first letter for unknown brands
         return name[0].toUpperCase() + name.substring(1).toLowerCase();
