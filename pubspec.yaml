@@ -60,6 +60,11 @@ dependencies:
   geolocator: ^10.1.0
   geocoding: ^2.1.1
 
+  # Voice Recognition and Text-to-Speech
+  speech_to_text: ^6.6.0
+  flutter_tts: ^3.8.5
+  permission_handler: ^11.1.0
+
   # Json serialization
   json_annotation: ^4.8.1
 

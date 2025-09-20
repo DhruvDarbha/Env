@@ -11,13 +11,18 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () => context.go('/dev-tools'),
-            icon: const Icon(Icons.developer_mode),
-            tooltip: 'Development Tools',
-          ),
-        ],
+              actions: [
+                IconButton(
+                  onPressed: () => context.go('/voice-demo'),
+                  icon: const Icon(Icons.mic),
+                  tooltip: 'Voice Demo',
+                ),
+                IconButton(
+                  onPressed: () => context.go('/dev-tools'),
+                  icon: const Icon(Icons.developer_mode),
+                  tooltip: 'Development Tools',
+                ),
+              ],
       ),
       body: BackgroundWrapperSplash(
         child: Padding(
