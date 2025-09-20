@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
-import '../../widgets/background_wrapper_light.dart';
+import '../../widgets/background_wrapper.dart';
 import '../../widgets/food_bank_map.dart';
 import '../../widgets/zipcode_search.dart';
 import '../../models/food_bank.dart';
@@ -66,7 +66,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard>
           ],
         ),
       ),
-      body: BackgroundWrapperLight(
+      body: BackgroundWrapper(
         child: TabBarView(
           controller: _tabController,
           children: [

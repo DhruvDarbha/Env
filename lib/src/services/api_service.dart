@@ -9,10 +9,11 @@ import '../models/produce_analysis.dart';
 import '../models/recipe.dart';
 import '../models/food_bank.dart';
 import '../models/message.dart';
+import '../config/api_config.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://api.freshtrack.com';
-  static const Duration timeout = Duration(seconds: 30);
+  static const String baseUrl = ApiConfig.freshTrackBaseUrl;
+  static const Duration timeout = ApiConfig.apiTimeout;
 
   // Authentication
   static Future<bool> loginSupplier(String email, String password) async {
@@ -66,17 +67,186 @@ class ApiService {
     return FoodBank.mockFoodBanks;
   }
 
-  // Location-based Food Bank Search
+  // Location-based Food Bank Search using Google Places API
   static Future<List<FoodBank>> searchFoodBanksByLocation({
     required double latitude,
     required double longitude,
     double radiusMiles = 10.0,
   }) async {
-    // Simulate API call delay
-    await Future.delayed(const Duration(milliseconds: 800));
+    // Check if Google Places API is configured
+    if (!ApiConfig.isGoogleApiKeyConfigured) {
+      print('Google Places API key not configured, using mock data');
+      return _generateNearbyFoodBanks(latitude, longitude, radiusMiles);
+    }
 
-    // Generate mock food banks based on location
-    return _generateNearbyFoodBanks(latitude, longitude, radiusMiles);
+    try {
+      // Convert miles to meters for Google Places API
+      final radiusMeters = (radiusMiles * 1609.34).round();
+
+      // Search for food banks, food pantries, and charities
+      final List<FoodBank> allFoodBanks = [];
+
+      // Use configured search queries
+      final searchQueries = ApiConfig.foodBankSearchQueries;
+
+      for (final query in searchQueries) {
+        final banks = await _searchPlacesByQuery(
+          query: query,
+          latitude: latitude,
+          longitude: longitude,
+          radius: radiusMeters,
+        );
+        allFoodBanks.addAll(banks);
+      }
+
+      // Remove duplicates based on place_id and sort by distance
+      final uniqueBanks = <String, FoodBank>{};
+      for (final bank in allFoodBanks) {
+        if (!uniqueBanks.containsKey(bank.id)) {
+          uniqueBanks[bank.id] = bank;
+        }
+      }
+
+      final result = uniqueBanks.values.toList();
+      result.sort((a, b) => a.distanceMiles.compareTo(b.distanceMiles));
+
+      return result.take(ApiConfig.maxFoodBankResults).toList();
+
+    } catch (e) {
+      print('Error searching food banks with Google Places API: $e');
+      // Fallback to mock data if API fails
+      return _generateNearbyFoodBanks(latitude, longitude, radiusMiles);
+    }
+  }
+
+  // Search places using Google Places Text Search API
+  static Future<List<FoodBank>> _searchPlacesByQuery({
+    required String query,
+    required double latitude,
+    required double longitude,
+    required int radius,
+  }) async {
+    final uri = Uri.parse('${ApiConfig.googlePlacesBaseUrl}/textsearch/json').replace(
+      queryParameters: {
+        'query': query,
+        'location': '$latitude,$longitude',
+        'radius': radius.toString(),
+        'key': ApiConfig.googlePlacesApiKey,
+        'type': 'establishment',
+      },
+    );
+
+    final response = await http.get(uri).timeout(timeout);
+
+    if (response.statusCode != 200) {
+      throw Exception('Google Places API request failed: ${response.statusCode}');
+    }
+
+    final data = jsonDecode(response.body);
+    final results = data['results'] as List<dynamic>;
+
+    final foodBanks = <FoodBank>[];
+
+    for (final place in results) {
+      try {
+        final placeId = place['place_id'] as String;
+        final name = place['name'] as String;
+        final address = place['formatted_address'] as String? ?? 'Address not available';
+
+        final geometry = place['geometry'];
+        final location = geometry['location'];
+        final placeLat = location['lat'] as double;
+        final placeLng = location['lng'] as double;
+
+        // Calculate distance
+        final distance = _calculateDistance(latitude, longitude, placeLat, placeLng);
+
+        // Get additional details from Place Details API
+        final details = await _getPlaceDetails(placeId);
+
+        final foodBank = FoodBank(
+          id: placeId,
+          name: name,
+          address: address,
+          latitude: placeLat,
+          longitude: placeLng,
+          distanceMiles: distance,
+          availableProduce: 'Contact for current inventory',
+          operatingHours: details['hours'] ?? 'Contact for hours',
+          phoneNumber: details['phone'],
+          website: details['website'],
+        );
+
+        foodBanks.add(foodBank);
+      } catch (e) {
+        print('Error parsing place data: $e');
+        continue;
+      }
+    }
+
+    return foodBanks;
+  }
+
+  // Get detailed information about a place
+  static Future<Map<String, String?>> _getPlaceDetails(String placeId) async {
+    try {
+      final uri = Uri.parse('${ApiConfig.googlePlacesBaseUrl}/details/json').replace(
+        queryParameters: {
+          'place_id': placeId,
+          'fields': 'opening_hours,formatted_phone_number,website',
+          'key': ApiConfig.googlePlacesApiKey,
+        },
+      );
+
+      final response = await http.get(uri).timeout(timeout);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final result = data['result'];
+
+        String? hours;
+        if (result['opening_hours'] != null) {
+          final weekdayText = result['opening_hours']['weekday_text'] as List<dynamic>?;
+          if (weekdayText != null && weekdayText.isNotEmpty) {
+            hours = weekdayText.take(3).join('\n'); // Show first 3 days
+          }
+        }
+
+        return {
+          'hours': hours,
+          'phone': result['formatted_phone_number'] as String?,
+          'website': result['website'] as String?,
+        };
+      }
+    } catch (e) {
+      print('Error getting place details: $e');
+    }
+
+    return {
+      'hours': null,
+      'phone': null,
+      'website': null,
+    };
+  }
+
+  // Calculate distance between two points in miles
+  static double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const double earthRadius = 3959.0; // Earth's radius in miles
+
+    final double dLat = _degreesToRadians(lat2 - lat1);
+    final double dLon = _degreesToRadians(lon2 - lon1);
+
+    final double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_degreesToRadians(lat1)) * math.cos(_degreesToRadians(lat2)) *
+        math.sin(dLon / 2) * math.sin(dLon / 2);
+
+    final double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+
+    return earthRadius * c;
+  }
+
+  static double _degreesToRadians(double degrees) {
+    return degrees * (math.pi / 180);
   }
 
   static Future<Position?> getCurrentLocation() async {

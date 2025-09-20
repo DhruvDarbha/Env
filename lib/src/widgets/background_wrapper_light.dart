@@ -13,13 +13,13 @@ class BackgroundWrapperLight extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/app_background.png'),
+          image: AssetImage('assets/images/login_screen.png'),
           fit: BoxFit.cover,
         ),
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.85),
+          color: Colors.white.withOpacity(0.3),
         ),
         child: child,
       ),

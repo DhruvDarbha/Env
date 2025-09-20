@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../widgets/background_wrapper.dart';
+import '../widgets/background_wrapper_splash.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -8,7 +8,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BackgroundWrapper(
+      body: BackgroundWrapperSplash(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 48.0),
           child: Column(

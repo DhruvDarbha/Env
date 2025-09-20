@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class BackgroundWrapper extends StatelessWidget {
+class BackgroundWrapperSplash extends StatelessWidget {
   final Widget child;
 
-  const BackgroundWrapper({
+  const BackgroundWrapperSplash({
     super.key,
     required this.child,
   });
@@ -13,16 +13,11 @@ class BackgroundWrapper extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/app_background.png'),
+          image: AssetImage('assets/images/splash_screen.png'),
           fit: BoxFit.cover,
         ),
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.8),
-        ),
-        child: child,
-      ),
+      child: child,
     );
   }
 }
