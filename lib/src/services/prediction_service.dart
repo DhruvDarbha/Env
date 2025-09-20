@@ -6,7 +6,7 @@ class PredictionService {
   static const String _gcpFunctionUrl = 'https://us-west2-proware-378020.cloudfunctions.net/function-1';
 
   /// Send user's image directly to GCP function via POST
-  static Future<String> predictRipeness(String imagePath) async {
+  static Future<String> predictRipeness(String imagePath, {String? produceType}) async {
     try {
       print('Starting prediction for user image: $imagePath');
 
@@ -55,16 +55,16 @@ class PredictionService {
                                     jsonResponse['message'] ??
                                     responseBody;
             print('✅ Extracted prediction: $prediction');
-            return _formatPredictionResult(prediction);
+            return _formatPredictionResult(prediction, produceType);
           } catch (e) {
             print('⚠️ JSON parsing failed, returning raw response: $responseBody');
             // If JSON parsing fails, return the raw response
-            return _formatPredictionResult(responseBody);
+            return _formatPredictionResult(responseBody, produceType);
           }
         } else {
           print('📝 Non-JSON response, returning as-is: $responseBody');
           // If it's not JSON, return the raw response
-          return _formatPredictionResult(responseBody);
+          return _formatPredictionResult(responseBody, produceType);
         }
       } else {
         throw Exception('GCP function returned status code: ${response.statusCode}. Response: ${response.body}');
@@ -76,7 +76,7 @@ class PredictionService {
   }
 
   /// Format the raw prediction result with ripeness category and consumption days
-  static String _formatPredictionResult(String rawPrediction) {
+  static String _formatPredictionResult(String rawPrediction, [String? produceType]) {
     try {
       // Extract the numerical value from the prediction
       final double ripenessValue = double.parse(rawPrediction.trim());
@@ -85,18 +85,18 @@ class PredictionService {
       String category;
       int daysUntilBad;
       
-      if (ripenessValue < 3.0) {
-        // Overripe: < 8 N
+      if (ripenessValue < 7.0) {
+        // Overripe: < 3 N
         category = 'Overripe';
-        daysUntilBad = 1; // 1 day left to consume
-      } else if (ripenessValue >= 3.0 && ripenessValue < 7.0) {
-        // Ripe: 8 N ≤ x < 22 N
+        daysUntilBad = 1;
+      } else if (ripenessValue >= 8.0 && ripenessValue < 15.0) {
+        // Ripe: 3 N ≤ x < 7 N
         category = 'Ripe';
-        daysUntilBad = 3; // 3-4 days left to consume
+        daysUntilBad = _calculateRipeDays(ripenessValue, produceType);
       } else {
-        // Unripe: ≥ 22 N
+        // Unripe: ≥ 7 N
         category = 'Unripe';
-        daysUntilBad = 5; // 5-6 days left to consume
+        daysUntilBad = _calculateUnripeDays(ripenessValue, produceType);
       }
       
       // Format the result with enhanced information
@@ -109,5 +109,100 @@ Days until it goes bad: $daysUntilBad days''';
       // If parsing fails, return the raw prediction with basic formatting
       return 'Ripeness: $rawPrediction Newtons\nCategory: Unable to determine\nDays until it goes bad: Check manually';
     }
+  }
+
+  /// Calculate days for overripe produce based on ripeness value and produce type
+  static int _calculateOverripeDays(double ripenessValue, String? produceType) {
+    // Overripe: 0-3 Newtons
+    // More overripe = fewer days
+    int baseDays;
+    if (ripenessValue < 1.0) {
+      baseDays = 1; // Very overripe - 1 day
+    } else if (ripenessValue < 2.0) {
+      baseDays = 1; // Overripe - 1 day
+    } else {
+      baseDays = 2; // Slightly overripe - 2 days
+    }
+    
+    // Adjust based on produce type
+    return _adjustDaysForProduceType(baseDays, produceType, isOverripe: true);
+  }
+
+  /// Calculate days for ripe produce based on ripeness value and produce type
+  static int _calculateRipeDays(double ripenessValue, String? produceType) {
+    // Ripe: 3-7 Newtons
+    // Optimal ripeness range with varying shelf life
+    int baseDays;
+    if (ripenessValue >= 3.0 && ripenessValue < 4.0) {
+      baseDays = 2; // Just ripe - 2 days
+    } else if (ripenessValue >= 4.0 && ripenessValue < 5.0) {
+      baseDays = 3; // Perfectly ripe - 3 days
+    } else if (ripenessValue >= 5.0 && ripenessValue < 6.0) {
+      baseDays = 4; // Still ripe - 4 days
+    } else {
+      baseDays = 3; // 6-7 N - 3 days (getting less ripe)
+    }
+    
+    // Adjust based on produce type
+    return _adjustDaysForProduceType(baseDays, produceType, isOverripe: false);
+  }
+
+  /// Calculate days for unripe produce based on ripeness value and produce type
+  static int _calculateUnripeDays(double ripenessValue, String? produceType) {
+    // Unripe: 7+ Newtons
+    // More unripe = more days until consumption
+    int baseDays;
+    if (ripenessValue >= 7.0 && ripenessValue < 8.0) {
+      baseDays = 5; // Slightly unripe - 5 days
+    } else if (ripenessValue >= 8.0 && ripenessValue < 9.0) {
+      baseDays = 6; // Unripe - 6 days
+    } else if (ripenessValue >= 9.0 && ripenessValue < 10.0) {
+      baseDays = 7; // Very unripe - 7 days
+    } else if (ripenessValue >= 10.0 && ripenessValue < 12.0) {
+      baseDays = 8; // Quite unripe - 8 days
+    } else {
+      baseDays = 9; // Very unripe (12+ N) - 9+ days
+    }
+    
+    // Adjust based on produce type
+    return _adjustDaysForProduceType(baseDays, produceType, isOverripe: false);
+  }
+
+  /// Adjust days based on produce type characteristics
+  static int _adjustDaysForProduceType(int baseDays, String? produceType, {required bool isOverripe}) {
+    if (produceType == null) return baseDays;
+    
+    final type = produceType.toLowerCase();
+    
+    // Fast-ripening fruits (banana, avocado, pear)
+    if (type.contains('banana') || type.contains('avocado') || type.contains('pear')) {
+      return isOverripe ? baseDays : (baseDays + 1); // Bananas ripen quickly
+    }
+    
+    // Medium-ripening fruits (apple, orange, peach)
+    if (type.contains('apple') || type.contains('orange') || type.contains('peach') || 
+        type.contains('plum') || type.contains('nectarine')) {
+      return baseDays; // Standard shelf life
+    }
+    
+    // Slow-ripening fruits (citrus, pomegranate)
+    if (type.contains('lemon') || type.contains('lime') || type.contains('grapefruit') || 
+        type.contains('pomegranate') || type.contains('kiwi')) {
+      return isOverripe ? baseDays : (baseDays + 2); // Citrus lasts longer
+    }
+    
+    // Berries (strawberry, blueberry, raspberry)
+    if (type.contains('berry') || type.contains('strawberry') || type.contains('blueberry') || 
+        type.contains('raspberry') || type.contains('blackberry')) {
+      return isOverripe ? (baseDays - 1).clamp(1, 3) : baseDays; // Berries spoil quickly
+    }
+    
+    // Stone fruits (cherry, apricot)
+    if (type.contains('cherry') || type.contains('apricot')) {
+      return isOverripe ? (baseDays - 1).clamp(1, 3) : (baseDays + 1);
+    }
+    
+    // Default adjustment
+    return baseDays;
   }
 }

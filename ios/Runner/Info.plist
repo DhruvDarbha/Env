@@ -28,12 +28,12 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>.env needs camera access to analyze food quality and freshness</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>.env needs photo library access to analyze existing photos of food</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>.env needs location access to find nearby food banks and provide location-based services</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>.env needs location access to find nearby food banks and provide location-based services</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>.env needs location access to find nearby food banks and provide location-based services</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>.env needs photo library access to analyze existing photos of food</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
