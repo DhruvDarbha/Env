@@ -27,6 +27,10 @@ class PredictionService {
       request.files.add(
         await http.MultipartFile.fromPath('file', imagePath),
       );
+      
+      // Add headers to specify image format
+      request.headers['Content-Type'] = 'multipart/form-data';
+      request.headers['Accept'] = 'application/json';
 
       print('🔗 Sending POST request to: $_gcpFunctionUrl');
 
@@ -51,16 +55,16 @@ class PredictionService {
                                     jsonResponse['message'] ??
                                     responseBody;
             print('✅ Extracted prediction: $prediction');
-            return prediction;
+            return _formatPredictionResult(prediction);
           } catch (e) {
             print('⚠️ JSON parsing failed, returning raw response: $responseBody');
             // If JSON parsing fails, return the raw response
-            return responseBody;
+            return _formatPredictionResult(responseBody);
           }
         } else {
           print('📝 Non-JSON response, returning as-is: $responseBody');
           // If it's not JSON, return the raw response
-          return responseBody;
+          return _formatPredictionResult(responseBody);
         }
       } else {
         throw Exception('GCP function returned status code: ${response.statusCode}. Response: ${response.body}');
@@ -68,6 +72,42 @@ class PredictionService {
     } catch (e) {
       print('❌ Error in predictRipeness: $e');
       throw Exception('Failed to predict ripeness: $e');
+    }
+  }
+
+  /// Format the raw prediction result with ripeness category and consumption days
+  static String _formatPredictionResult(String rawPrediction) {
+    try {
+      // Extract the numerical value from the prediction
+      final double ripenessValue = double.parse(rawPrediction.trim());
+      
+      // Determine ripeness category based on the histogram thresholds
+      String category;
+      int daysUntilBad;
+      
+      if (ripenessValue < 3.0) {
+        // Overripe: < 8 N
+        category = 'Overripe';
+        daysUntilBad = 1; // 1 day left to consume
+      } else if (ripenessValue >= 3.0 && ripenessValue < 7.0) {
+        // Ripe: 8 N ≤ x < 22 N
+        category = 'Ripe';
+        daysUntilBad = 3; // 3-4 days left to consume
+      } else {
+        // Unripe: ≥ 22 N
+        category = 'Unripe';
+        daysUntilBad = 5; // 5-6 days left to consume
+      }
+      
+      // Format the result with enhanced information
+      return '''Ripeness: ${ripenessValue.toStringAsFixed(2)} Newtons
+Category: $category
+Days until it goes bad: $daysUntilBad days''';
+      
+    } catch (e) {
+      print('⚠️ Error parsing prediction value: $e');
+      // If parsing fails, return the raw prediction with basic formatting
+      return 'Ripeness: $rawPrediction Newtons\nCategory: Unable to determine\nDays until it goes bad: Check manually';
     }
   }
 }
