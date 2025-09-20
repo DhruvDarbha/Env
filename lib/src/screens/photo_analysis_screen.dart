@@ -23,6 +23,33 @@ class _PhotoAnalysisScreenState extends State<PhotoAnalysisScreen> {
   String? _detectedBrand;
   String? _ripenessScore;
 
+  /// Extract numerical ripeness value from formatted GCP response
+  double _extractRipenessValue(String formattedResult) {
+    try {
+      // Look for pattern "Ripeness: X.XX Newtons"
+      final RegExp ripenessRegex = RegExp(r'Ripeness:\s*(\d+\.?\d*)\s*Newtons');
+      final Match? match = ripenessRegex.firstMatch(formattedResult);
+
+      if (match != null && match.group(1) != null) {
+        return double.parse(match.group(1)!);
+      }
+
+      // Fallback: try to parse the first number found in the string
+      final RegExp numberRegex = RegExp(r'(\d+\.?\d*)');
+      final Match? numberMatch = numberRegex.firstMatch(formattedResult);
+
+      if (numberMatch != null && numberMatch.group(1) != null) {
+        return double.parse(numberMatch.group(1)!);
+      }
+
+      print('⚠️ Could not extract ripeness value from: $formattedResult');
+      return 0.0;
+    } catch (e) {
+      print('⚠️ Error extracting ripeness value: $e');
+      return 0.0;
+    }
+  }
+
   Future<void> _getPrediction() async {
     setState(() {
       _isAnalyzing = true;
@@ -37,7 +64,9 @@ class _PhotoAnalysisScreenState extends State<PhotoAnalysisScreen> {
 
       // If brand was detected, sync to Supabase with REAL ripeness score
       if (detectedBrand != null) {
-        final realRipenessScore = double.tryParse(ripenessResult) ?? 0.0;
+        // Extract numerical value from formatted result
+        final realRipenessScore = _extractRipenessValue(ripenessResult);
+        print('📊 Extracted ripeness value: $realRipenessScore from: $ripenessResult');
         await ApiService.syncBrandToSupabase(
           brandName: detectedBrand,
           ripenessScore: realRipenessScore,
