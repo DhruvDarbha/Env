@@ -26,6 +26,9 @@ dependencies:
   # HTTP requests
   http: ^1.1.2
 
+  # Google Generative AI (Gemini)
+  google_generative_ai: ^0.4.3
+
   # Firebase (removed - using direct GCP calls)
   # firebase_core: ^2.4.1
   # firebase_storage: ^11.2.6

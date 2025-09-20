@@ -1,12 +1,15 @@
 class ApiConfig {
+  // Google API Keys
+  // IMPORTANT: Replace with your actual Google API keys
+  // Get your API keys from: https://console.cloud.google.com/
+
   // Google Places API Key
-  // IMPORTANT: Replace with your actual Google Places API key
-  // Get your API key from: https://console.cloud.google.com/
-  // Enable the following APIs:
-  // - Places API
-  // - Maps SDK for iOS (if using iOS)
-  // - Maps SDK for Android (if using Android)
+  // Enable: Places API, Maps SDK for iOS/Android
   static const String googlePlacesApiKey = 'AIzaSyBvliiQSooQGNzWZaFjl87lsk9J-X5kPdw';
+
+  // Google Generative AI (Gemini) API Key
+  // Enable: Generative Language API
+  static const String geminiApiKey = 'AIzaSyDhirAR-Szj9bH6WyNm0a8LP1yKzZj7DfA';
 
   // Base URLs
   static const String googlePlacesBaseUrl = 'https://maps.googleapis.com/maps/api/place';
@@ -34,5 +37,10 @@ class ApiConfig {
   static bool get isGoogleApiKeyConfigured {
     return googlePlacesApiKey != 'YOUR_GOOGLE_PLACES_API_KEY' &&
            googlePlacesApiKey.isNotEmpty;
+  }
+
+  static bool get isGeminiApiKeyConfigured {
+    return geminiApiKey != 'YOUR_GEMINI_API_KEY' &&
+           geminiApiKey.isNotEmpty;
   }
 }

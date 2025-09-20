@@ -10,6 +10,8 @@ import '../models/recipe.dart';
 import '../models/food_bank.dart';
 import '../models/message.dart';
 import '../config/api_config.dart';
+import 'gemini_vision_service.dart';
+import 'brand_tracking_service.dart';
 
 class ApiService {
   static const String baseUrl = ApiConfig.freshTrackBaseUrl;
@@ -32,13 +34,58 @@ class ApiService {
     return email == 'james@savr.com' && password == 'demo123';
   }
 
-  // Produce Analysis
+  // Produce Analysis with Brand Detection
   static Future<ProduceAnalysis> analyzeProduceImage(String imagePath) async {
-    // Simulate AI analysis delay
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      // Get current location for tracking
+      final location = await getCurrentLocation();
 
-    // Return mock analysis
-    return ProduceAnalysis.mockAppleAnalysis;
+      // Simulate AI analysis delay
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Get mock analysis (in real implementation, this would be actual AI analysis)
+      final baseAnalysis = ProduceAnalysis.mockAppleAnalysis;
+
+      // Run brand detection in parallel (doesn't block main analysis)
+      String? detectedBrand;
+      try {
+        detectedBrand = await GeminiVisionService.detectFruitBrand(imagePath);
+      } catch (e) {
+        print('Brand detection failed: $e');
+        detectedBrand = null;
+      }
+
+      // Create enhanced analysis with brand and location data
+      final enhancedAnalysis = ProduceAnalysis(
+        id: '${DateTime.now().millisecondsSinceEpoch}',
+        imagePath: imagePath,
+        fruitType: baseAnalysis.fruitType,
+        ripeness: baseAnalysis.ripeness,
+        qualityScore: baseAnalysis.qualityScore,
+        shelfLife: baseAnalysis.shelfLife,
+        recommendations: baseAnalysis.recommendations,
+        analyzedAt: DateTime.now(),
+        detectedBrand: detectedBrand,
+        location: location,
+      );
+
+      // Save brand tracking data if brand was detected
+      if (detectedBrand != null) {
+        await BrandTrackingService.saveBrandFromAnalysis(
+          brandName: detectedBrand,
+          fruitType: baseAnalysis.fruitType,
+          timestamp: DateTime.now(),
+          location: location,
+        );
+      }
+
+      return enhancedAnalysis;
+
+    } catch (e) {
+      print('Error in produce analysis: $e');
+      // Fallback to basic analysis without brand detection
+      return ProduceAnalysis.mockAppleAnalysis;
+    }
   }
 
   // Recipes

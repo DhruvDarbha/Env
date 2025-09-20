@@ -1,3 +1,5 @@
+import 'package:geolocator/geolocator.dart';
+
 class ProduceAnalysis {
   final String id;
   final String imagePath;
@@ -7,6 +9,8 @@ class ProduceAnalysis {
   final String shelfLife;
   final List<String> recommendations;
   final DateTime analyzedAt;
+  final String? detectedBrand;
+  final Position? location;
 
   ProduceAnalysis({
     required this.id,
@@ -17,9 +21,28 @@ class ProduceAnalysis {
     required this.shelfLife,
     required this.recommendations,
     required this.analyzedAt,
+    this.detectedBrand,
+    this.location,
   });
 
   factory ProduceAnalysis.fromJson(Map<String, dynamic> json) {
+    Position? location;
+    if (json['location'] != null) {
+      final locationData = json['location'];
+      location = Position(
+        latitude: locationData['latitude'].toDouble(),
+        longitude: locationData['longitude'].toDouble(),
+        timestamp: DateTime.parse(locationData['timestamp']),
+        accuracy: locationData['accuracy']?.toDouble() ?? 0.0,
+        altitude: locationData['altitude']?.toDouble() ?? 0.0,
+        heading: locationData['heading']?.toDouble() ?? 0.0,
+        speed: locationData['speed']?.toDouble() ?? 0.0,
+        speedAccuracy: locationData['speedAccuracy']?.toDouble() ?? 0.0,
+        altitudeAccuracy: locationData['altitudeAccuracy']?.toDouble() ?? 0.0,
+        headingAccuracy: locationData['headingAccuracy']?.toDouble() ?? 0.0,
+      );
+    }
+
     return ProduceAnalysis(
       id: json['id'],
       imagePath: json['imagePath'],
@@ -29,10 +52,28 @@ class ProduceAnalysis {
       shelfLife: json['shelfLife'],
       recommendations: List<String>.from(json['recommendations']),
       analyzedAt: DateTime.parse(json['analyzedAt']),
+      detectedBrand: json['detectedBrand'],
+      location: location,
     );
   }
 
   Map<String, dynamic> toJson() {
+    Map<String, dynamic>? locationJson;
+    if (location != null) {
+      locationJson = {
+        'latitude': location!.latitude,
+        'longitude': location!.longitude,
+        'timestamp': location!.timestamp.toIso8601String(),
+        'accuracy': location!.accuracy,
+        'altitude': location!.altitude,
+        'heading': location!.heading,
+        'speed': location!.speed,
+        'speedAccuracy': location!.speedAccuracy,
+        'altitudeAccuracy': location!.altitudeAccuracy,
+        'headingAccuracy': location!.headingAccuracy,
+      };
+    }
+
     return {
       'id': id,
       'imagePath': imagePath,
@@ -42,6 +83,8 @@ class ProduceAnalysis {
       'shelfLife': shelfLife,
       'recommendations': recommendations,
       'analyzedAt': analyzedAt.toIso8601String(),
+      'detectedBrand': detectedBrand,
+      'location': locationJson,
     };
   }
 
