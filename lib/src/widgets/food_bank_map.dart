@@ -34,6 +34,21 @@ class _FoodBankMapState extends State<FoodBankMap> {
     _initializeMap();
   }
 
+  @override
+  void didUpdateWidget(FoodBankMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Re-initialize map when zipCode or userLocation changes
+    if (widget.zipCode != oldWidget.zipCode || 
+        widget.userLocation != oldWidget.userLocation) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+      _initializeMap();
+    }
+  }
+
   Future<void> _initializeMap() async {
     try {
       Position? location = widget.userLocation;
