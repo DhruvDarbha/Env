@@ -14,7 +14,6 @@ import 'screens/chat/askenv_chat_screen.dart';
 import 'screens/camera_screen.dart';
 import 'screens/photo_analysis_screen.dart';
 import 'screens/dev_tools_screen.dart';
-import 'screens/voice_demo_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -122,11 +121,6 @@ class AppRouter {
         path: '/dev-tools',
         name: 'dev-tools',
         builder: (context, state) => const DevToolsScreen(),
-      ),
-      GoRoute(
-        path: '/voice-demo',
-        name: 'voice-demo',
-        builder: (context, state) => const VoiceDemoScreen(),
       ),
     ],
   );

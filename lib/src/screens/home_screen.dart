@@ -16,11 +16,6 @@ class HomeScreen extends StatelessWidget {
           automaticallyImplyLeading: false,
           actions: [
             IconButton(
-              onPressed: () => context.go('/voice-demo'),
-              icon: const Icon(Icons.mic),
-              tooltip: 'Voice Demo',
-            ),
-            IconButton(
               onPressed: () => context.go('/dev-tools'),
               icon: const Icon(Icons.developer_mode),
               tooltip: 'Development Tools',
