@@ -2,7 +2,7 @@ import '../services/supabase_service.dart';
 import '../models/supplier_analytics.dart';
 
 class SupplierAnalyticsService {
-  /// Extract table name from supplier email (e.g., sunkist@env.com -> sunkist_data)
+  /// Extract table name from supplier email (e.g., villita@env.com -> villita_data)
   static String getTableNameFromEmail(String email) {
     final username = email.split('@').first.toLowerCase();
     return '${username}_data';

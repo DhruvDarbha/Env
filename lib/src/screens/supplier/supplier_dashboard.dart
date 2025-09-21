@@ -53,15 +53,15 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
     try {
       final supabase = Supabase.instance.client;
 
-      // Get sunkist_data
-      String tableName = 'sunkist_data';
+      // Get villita_data
+      String tableName = 'villita_data';
 
-      final sunkistResponse = await supabase
+      final villitaResponse = await supabase
           .from(tableName)
           .select()
           .order('analyzed_at', ascending: true);
 
-      List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(sunkistResponse);
+      List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(villitaResponse);
 
       if (data.isEmpty) {
         setState(() {
@@ -113,7 +113,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: const Text('Sunkist Analytics'),
+          title: const Text('Villita Analytics'),
           backgroundColor: Colors.transparent,
           elevation: 0,
           foregroundColor: Colors.black87,
@@ -405,7 +405,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                           ),
                         ],
                         minY: 0,
-                        maxY: 15,
+                        maxY: 30,
                       ),
                     ),
             ),
@@ -553,7 +553,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                           ),
                         ],
                         minY: 0,
-                        maxY: 10,
+                        maxY: 30,
                       ),
                     ),
             ),
@@ -619,8 +619,8 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
         totalLng += lng;
         validLocationCount++;
 
-        // Convert ripeness score (0-15) to heat intensity
-        double intensity = ripeness / 15.0; // Normalize to 0-1
+        // Convert ripeness score (0-30) to heat intensity
+        double intensity = ripeness / 30.0; // Normalize to 0-1
 
         heatmapData.add(HeatmapDataPoint(
           latitude: lat,

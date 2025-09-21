@@ -41,6 +41,30 @@ class _DevToolsScreenState extends State<DevToolsScreen> {
     }
   }
 
+  Future<void> _insertVillitaDummyData() async {
+    setState(() {
+      _isLoading = true;
+      _statusMessage = 'Inserting Villita dummy data...';
+    });
+
+    try {
+      final success = await ApiService.insertVillitaDummyData();
+      setState(() {
+        _statusMessage = success
+            ? 'Successfully inserted 30 Villita data points with ripeness scores 0-6!'
+            : 'Failed to insert Villita dummy data';
+      });
+    } catch (e) {
+      setState(() {
+        _statusMessage = 'Error: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   Future<void> _checkSupabaseStatus() async {
     setState(() {
       _isLoading = true;
@@ -185,7 +209,8 @@ Ready for real Gemini integration!''';
                           const Text(
                             '1. Go to your Supabase SQL Editor\n'
                             '2. Run HALOS_DUMMY_DATA.sql script\n'
-                            '3. Then click "Insert Halos Dummy Data"',
+                            '3. Create villita_data table with same schema\n'
+                            '4. Click "Insert Halos Dummy Data" or "Insert Villita Dummy Data"',
                             style: TextStyle(fontSize: 12),
                           ),
                         ],
@@ -208,6 +233,16 @@ Ready for real Gemini integration!''';
                       label: const Text('Insert Halos Dummy Data'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: _isLoading ? null : _insertVillitaDummyData,
+                      icon: const Icon(Icons.add_circle_outline),
+                      label: const Text('Insert Villita Dummy Data (0-6)'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
                         foregroundColor: Colors.white,
                       ),
                     ),

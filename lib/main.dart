@@ -10,6 +10,7 @@ import 'src/providers/auth_provider.dart';
 import 'src/theme/app_theme.dart';
 import 'src/config/api_config.dart';
 import 'src/services/siri_service.dart';
+import 'src/services/supabase_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +20,9 @@ void main() async {
     url: ApiConfig.supabaseUrl,
     anonKey: ApiConfig.supabaseAnonKey,
   );
+
+  // Initialize our Supabase service wrapper
+  await SupabaseService.initialize();
 
   runApp(const SavrApp());
 }

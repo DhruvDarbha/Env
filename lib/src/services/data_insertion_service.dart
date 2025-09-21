@@ -296,4 +296,298 @@ class DataInsertionService {
       return false;
     }
   }
+
+  /// Insert Villita dummy data into Supabase with ripeness scores 0-6
+  static Future<bool> insertVillitaDummyData() async {
+    try {
+      if (!SupabaseService.isReady) {
+        print('Supabase not configured, cannot insert dummy data');
+        return false;
+      }
+
+      print('Attempting to insert data into villita_data table...');
+
+      // Generate mock data for Villita with Philadelphia area coordinates
+      // Ripeness scores ranging from 0 to 6
+      final dummyData = [
+        // Center City Philadelphia locations
+        {
+          'ripeness_score': 2.5,
+          'latitude': 39.9500,
+          'longitude': -75.1667,
+          'location_description': 'Fresh Grocer - Broad St',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-15T09:30:00-05:00'
+        },
+        {
+          'ripeness_score': 1.8,
+          'latitude': 39.9485,
+          'longitude': -75.1598,
+          'location_description': 'Whole Foods - South St',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-15T14:22:00-05:00'
+        },
+        {
+          'ripeness_score': 4.2,
+          'latitude': 39.9525,
+          'longitude': -75.1621,
+          'location_description': 'Trader Joes - Center City',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-16T11:45:00-05:00'
+        },
+        {
+          'ripeness_score': 0.8,
+          'latitude': 39.9489,
+          'longitude': -75.1789,
+          'location_description': 'ACME - Rittenhouse',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-16T16:18:00-05:00'
+        },
+        {
+          'ripeness_score': 5.3,
+          'latitude': 39.9467,
+          'longitude': -75.1654,
+          'location_description': 'Giant - Washington Ave',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-17T08:55:00-05:00'
+        },
+
+        // University City locations (near UPenn)
+        {
+          'ripeness_score': 3.7,
+          'latitude': 39.9522,
+          'longitude': -75.1932,
+          'location_description': 'Fresh Grocer - 40th St',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-17T13:30:00-05:00'
+        },
+        {
+          'ripeness_score': 2.4,
+          'latitude': 39.9512,
+          'longitude': -75.1889,
+          'location_description': 'IGA - Baltimore Ave',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-18T10:15:00-05:00'
+        },
+        {
+          'ripeness_score': 1.6,
+          'latitude': 39.9534,
+          'longitude': -75.1876,
+          'location_description': 'Corner Store - 42nd & Chestnut',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-18T17:42:00-05:00'
+        },
+        {
+          'ripeness_score': 4.9,
+          'latitude': 39.9498,
+          'longitude': -75.1943,
+          'location_description': 'Supremo - 45th & Woodland',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-19T12:20:00-05:00'
+        },
+        {
+          'ripeness_score': 2.2,
+          'latitude': 39.9556,
+          'longitude': -75.1821,
+          'location_description': 'ACME - Powelton Village',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-19T15:33:00-05:00'
+        },
+
+        // West Philadelphia locations
+        {
+          'ripeness_score': 3.1,
+          'latitude': 39.9578,
+          'longitude': -75.1734,
+          'location_description': 'ShopRite - Girard Ave',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-20T09:45:00-05:00'
+        },
+        {
+          'ripeness_score': 0.3,
+          'latitude': 39.9445,
+          'longitude': -75.1698,
+          'location_description': 'Save A Lot - South St',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-20T14:28:00-05:00'
+        },
+        {
+          'ripeness_score': 5.8,
+          'latitude': 39.9589,
+          'longitude': -75.1689,
+          'location_description': 'Fresh Market - Lancaster Ave',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-21T11:12:00-05:00'
+        },
+        {
+          'ripeness_score': 2.7,
+          'latitude': 39.9434,
+          'longitude': -75.1756,
+          'location_description': 'Corner Deli - Grays Ferry',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-21T16:55:00-05:00'
+        },
+        {
+          'ripeness_score': 1.9,
+          'latitude': 39.9567,
+          'longitude': -75.1612,
+          'location_description': 'Whole Foods - Fairmount',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-22T08:30:00-05:00'
+        },
+
+        // North Philadelphia locations
+        {
+          'ripeness_score': 4.5,
+          'latitude': 39.9634,
+          'longitude': -75.1823,
+          'location_description': 'Fresh Grocer - Girard',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-22T13:18:00-05:00'
+        },
+        {
+          'ripeness_score': 0.9,
+          'latitude': 39.9678,
+          'longitude': -75.1756,
+          'location_description': 'ACME - Brewerytown',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-23T10:42:00-05:00'
+        },
+        {
+          'ripeness_score': 3.6,
+          'latitude': 39.9645,
+          'longitude': -75.1634,
+          'location_description': 'ShopRite - Spring Garden',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-23T15:25:00-05:00'
+        },
+        {
+          'ripeness_score': 2.1,
+          'latitude': 39.9612,
+          'longitude': -75.1598,
+          'location_description': 'Trader Joes - Fairmount',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-24T09:38:00-05:00'
+        },
+        {
+          'ripeness_score': 1.3,
+          'latitude': 39.9689,
+          'longitude': -75.1789,
+          'location_description': 'Corner Market - Francisville',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-24T14:52:00-05:00'
+        },
+
+        // South Philadelphia locations
+        {
+          'ripeness_score': 4.3,
+          'latitude': 39.9378,
+          'longitude': -75.1634,
+          'location_description': 'Italian Market - 9th St',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-25T11:05:00-05:00'
+        },
+        {
+          'ripeness_score': 5.8,
+          'latitude': 39.9345,
+          'longitude': -75.1598,
+          'location_description': 'Fresh Grocer - South Philly',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-25T16:33:00-05:00'
+        },
+        {
+          'ripeness_score': 1.2,
+          'latitude': 39.9356,
+          'longitude': -75.1723,
+          'location_description': 'ACME - Passyunk Ave',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-26T08:47:00-05:00'
+        },
+        {
+          'ripeness_score': 4.1,
+          'latitude': 39.9312,
+          'longitude': -75.1689,
+          'location_description': 'ShopRite - Oregon Ave',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-26T13:29:00-05:00'
+        },
+        {
+          'ripeness_score': 2.5,
+          'latitude': 39.9389,
+          'longitude': -75.1756,
+          'location_description': 'Corner Store - Point Breeze',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-27T10:14:00-05:00'
+        },
+
+        // East Philadelphia locations
+        {
+          'ripeness_score': 3.4,
+          'latitude': 39.9467,
+          'longitude': -75.1456,
+          'location_description': 'Fresh Grocer - Northern Liberties',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-27T15:21:00-05:00'
+        },
+        {
+          'ripeness_score': 1.7,
+          'latitude': 39.9523,
+          'longitude': -75.1398,
+          'location_description': 'Whole Foods - Fishtown',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-28T09:56:00-05:00'
+        },
+        {
+          'ripeness_score': 4.8,
+          'latitude': 39.9445,
+          'longitude': -75.1334,
+          'location_description': 'ACME - Port Richmond',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-28T14:43:00-05:00'
+        },
+        {
+          'ripeness_score': 0.6,
+          'latitude': 39.9489,
+          'longitude': -75.1423,
+          'location_description': 'Corner Deli - Kensington',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-29T11:37:00-05:00'
+        },
+        {
+          'ripeness_score': 5.2,
+          'latitude': 39.9556,
+          'longitude': -75.1512,
+          'location_description': 'Fresh Market - Fishtown',
+          'fruit_type': 'Banana',
+          'analyzed_at': '2024-01-29T16:08:00-05:00'
+        },
+      ];
+
+      // Insert each data point directly to villita_data table
+      int successCount = 0;
+      for (final data in dummyData) {
+        try {
+          await SupabaseService.client!.from('villita_data').insert({
+            'ripeness_score': data['ripeness_score'],
+            'latitude': data['latitude'],
+            'longitude': data['longitude'],
+            'location_description': data['location_description'],
+            'fruit_type': data['fruit_type'],
+            'analyzed_at': data['analyzed_at'],
+          });
+          successCount++;
+          print('Inserted: ${data['location_description']}');
+        } catch (e) {
+          print('Failed to insert ${data['location_description']}: $e');
+        }
+      }
+
+      print('Successfully inserted $successCount out of ${dummyData.length} Villita data points');
+      return successCount == dummyData.length;
+
+    } catch (e) {
+      print('Error inserting Villita dummy data: $e');
+      return false;
+    }
+  }
 }

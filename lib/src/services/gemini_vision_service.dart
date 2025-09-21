@@ -121,7 +121,7 @@ Response:''';
       'stemilt',
       'wonderful',
       'zespri',
-      'sunkist',
+      'villita',
       'organic girl',
       'earthbound',
       'fresh express',
@@ -174,8 +174,8 @@ Response:''';
         return 'Wonderful';
       case 'zespri':
         return 'Zespri';
-      case 'sunkist':
-        return 'Sunkist';
+      case 'villita':
+        return 'Villita';
       case 'organic girl':
         return 'Organic Girl';
       case 'earthbound':

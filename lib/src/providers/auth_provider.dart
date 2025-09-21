@@ -43,7 +43,7 @@ class AuthProvider extends ChangeNotifier {
         await prefs.setBool('supplier_authenticated', true);
         await prefs.setBool('has_ever_used_app', true);
       } else {
-        _errorMessage = 'Invalid credentials. Try sunkist@env.com / demo123';
+        _errorMessage = 'Invalid credentials. Try villita@env.com / demo123';
       }
     } catch (e) {
       _errorMessage = 'Login failed. Please try again.';

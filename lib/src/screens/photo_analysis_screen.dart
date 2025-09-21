@@ -252,7 +252,13 @@ class _PhotoAnalysisScreenState extends State<PhotoAnalysisScreen> {
                               children: [
                                 const Icon(Icons.assessment, size: 16, color: Colors.green),
                                 const SizedBox(width: 8),
-                                Text('Ripeness Score: $_ripenessScore'),
+                                Expanded(
+                                  child: Text(
+                                    'Ripeness Score: $_ripenessScore',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                  ),
+                                ),
                               ],
                             ),
                           if (_detectedBrand != null)
@@ -260,7 +266,12 @@ class _PhotoAnalysisScreenState extends State<PhotoAnalysisScreen> {
                               children: [
                                 const Icon(Icons.label, size: 16, color: Colors.green),
                                 const SizedBox(width: 8),
-                                Text('Brand Detected: $_detectedBrand'),
+                                Expanded(
+                                  child: Text(
+                                    'Brand Detected: $_detectedBrand',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ],
                             ),
                           if (_detectedBrand == null && _ripenessScore != null)
@@ -304,11 +315,14 @@ class _PhotoAnalysisScreenState extends State<PhotoAnalysisScreen> {
                                   ),
                                 ),
                                 SizedBox(width: 12),
-                                Text(
-                                  'Analyzing Ripeness & Brand...',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
+                                Flexible(
+                                  child: Text(
+                                    'Analyzing...',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
@@ -318,11 +332,14 @@ class _PhotoAnalysisScreenState extends State<PhotoAnalysisScreen> {
                               children: [
                                 Icon(Icons.auto_awesome, size: 20),
                                 SizedBox(width: 8),
-                                Text(
-                                  'Analyze Ripeness & Brand',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
+                                Flexible(
+                                  child: Text(
+                                    'Analyze Food',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],

@@ -27,7 +27,7 @@ class ApiService {
     await Future.delayed(const Duration(seconds: 1));
 
     // Mock authentication logic
-    return email == 'sunkist@env.com' && password == 'demo123';
+    return email == 'villita@env.com' && password == 'demo123';
   }
 
   static Future<bool> loginConsumer(String email, String password) async {
@@ -588,6 +588,23 @@ class ApiService {
       return success;
     } catch (e) {
       print('Error inserting Halos dummy data: $e');
+      return false;
+    }
+  }
+
+  // Development Helper: Insert Villita dummy data
+  static Future<bool> insertVillitaDummyData() async {
+    try {
+      print('Starting Villita dummy data insertion...');
+      final success = await DataInsertionService.insertVillitaDummyData();
+      if (success) {
+        print('Villita dummy data inserted successfully!');
+      } else {
+        print('Failed to insert Villita dummy data');
+      }
+      return success;
+    } catch (e) {
+      print('Error inserting Villita dummy data: $e');
       return false;
     }
   }

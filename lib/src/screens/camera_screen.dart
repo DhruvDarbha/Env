@@ -79,8 +79,11 @@ class _CameraScreenState extends State<CameraScreen> {
     // Navigate to analysis screen with the image and wait for result
     final String? prediction = await context.push<String>('/photo-analysis', extra: imagePath);
     if (mounted && prediction != null) {
-      // Return to dashboard with prediction
-      context.pop(prediction);
+      // Return to dashboard with prediction as Map
+      context.pop({
+        'prediction': prediction,
+        'imagePath': imagePath,
+      });
     }
   }
 

@@ -14,7 +14,7 @@ class SupplierLogin extends StatefulWidget {
 
 class _SupplierLoginState extends State<SupplierLogin> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'sunkist@env.com');
+  final _emailController = TextEditingController(text: 'villita@env.com');
   final _passwordController = TextEditingController(text: 'demo123');
 
   @override
@@ -178,7 +178,7 @@ class _SupplierLoginState extends State<SupplierLogin> {
                     child: const Column(
                       children: [
                         Text('Demo Credentials:'),
-                        Text('Email: sunkist@env.com'),
+                        Text('Email: villita@env.com'),
                         Text('Password: demo123'),
                       ],
                     ),
