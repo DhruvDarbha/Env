@@ -95,16 +95,20 @@ class AppRouter {
       GoRoute(
         path: '/photo-analysis',
         name: 'photo-analysis',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final imagePath = state.extra as String?;
           if (imagePath == null) {
-            return const Scaffold(
-              body: Center(
-                child: Text('No image provided'),
+            return MaterialPage(
+              child: const Scaffold(
+                body: Center(
+                  child: Text('No image provided'),
+                ),
               ),
             );
           }
-          return PhotoAnalysisScreen(imagePath: imagePath);
+          return MaterialPage(
+            child: PhotoAnalysisScreen(imagePath: imagePath),
+          );
         },
       ),
       GoRoute(

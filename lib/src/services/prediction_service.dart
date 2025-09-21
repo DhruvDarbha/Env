@@ -89,7 +89,7 @@ class PredictionService {
         // Overripe: < 3 N
         category = 'Overripe';
         daysUntilBad = 1;
-      } else if (ripenessValue >= 8.0 && ripenessValue < 15.0) {
+      } else if (ripenessValue >= 8.0 && ripenessValue < 12.0) {
         // Ripe: 3 N ≤ x < 7 N
         category = 'Ripe';
         daysUntilBad = _calculateRipeDays(ripenessValue, produceType);

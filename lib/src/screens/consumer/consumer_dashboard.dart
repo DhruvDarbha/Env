@@ -466,23 +466,34 @@ class _ConsumerDashboardState extends State<ConsumerDashboard>
 
               // Recipe info
               const SizedBox(height: 12),
-              Row(
+              Wrap(
+                spacing: 16,
+                runSpacing: 8,
                 children: [
                   if (recipe.servings > 0) ...[
-                    Icon(Icons.people, size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${recipe.servings} servings',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.people, size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${recipe.servings} servings',
+                          style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 16),
                   ],
                   if (recipe.ingredients.isNotEmpty) ...[
-                    Icon(Icons.list, size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${recipe.ingredients.length} ingredients',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.list, size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${recipe.ingredients.length} ingredients',
+                          style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                        ),
+                      ],
                     ),
                   ],
                 ],
