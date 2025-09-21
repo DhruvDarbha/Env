@@ -9,6 +9,7 @@ import 'src/providers/app_state.dart';
 import 'src/providers/auth_provider.dart';
 import 'src/theme/app_theme.dart';
 import 'src/config/api_config.dart';
+import 'src/services/siri_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +53,11 @@ class _SavrAppState extends State<SavrApp> {
       ],
       child: Consumer<AppState>(
         builder: (context, appState, child) {
+          // Initialize Siri service with context when app is built
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            SiriService.initialize(context);
+          });
+
           return MaterialApp.router(
             title: kIsWeb ? '.env' : 'Savr',
             theme: AppTheme.lightTheme,

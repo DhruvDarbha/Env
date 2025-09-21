@@ -14,6 +14,7 @@ import 'screens/chat/askenv_chat_screen.dart';
 import 'screens/camera_screen.dart';
 import 'screens/photo_analysis_screen.dart';
 import 'screens/dev_tools_screen.dart';
+import 'screens/siri_fruit_analysis_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -121,6 +122,11 @@ class AppRouter {
         path: '/dev-tools',
         name: 'dev-tools',
         builder: (context, state) => const DevToolsScreen(),
+      ),
+      GoRoute(
+        path: '/siri-fruit-analysis',
+        name: 'siri-fruit-analysis',
+        builder: (context, state) => const SiriFruitAnalysisScreen(),
       ),
     ],
   );

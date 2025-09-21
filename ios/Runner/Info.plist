@@ -34,6 +34,23 @@
 	<string>.env needs location access to find nearby food banks and provide location-based services</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>.env needs photo library access to analyze existing photos of food</string>
+	<key>NSSiriUsageDescription</key>
+	<string>.env integrates with Siri to quickly analyze fruit ripeness using voice commands</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>.env needs microphone access for Siri voice commands and fruit analysis</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.env.fruit-analysis</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>env</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
